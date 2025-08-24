@@ -130,11 +130,6 @@
       </div>
     </section>
 
-    <details class="card tests">
-      <summary>Թեստեր</summary>
-      <pre id="testResults" style="white-space:pre-wrap"></pre>
-    </details>
-
   </div>
 
   <script>
@@ -448,30 +443,6 @@
       // So by design, welcome is always shown.
     })();
 
-    // ===== Tests =====
-    (function runTests(){
-      const out=[]; const ok=(c,m)=>{ out.push(`${c?'✅':'❌'} ${m}`); if(!c) console.error(m); };
-      try{
-        ok(typeof seededShuffle==='function','seededShuffle defined');
-        const nm='Tester';
-        let deck=[];
-        (function(){
-          const cats=CATEGORIES.map(c=>c.id);
-          for(const cat of cats){
-            const pool=FACTS[cat].slice(); const shuffled=seededShuffle(pool,nm);
-            const take4=shuffled.slice(0,4);
-            for(let i=0;i<take4.length;i++){ deck.push({id:`${cat}_${i}`,cat,text:take4[i]});}
-          }
-          deck = seededShuffle(deck,nm);
-        })();
-        ok(deck.length===20,'Deck contains exactly 20 items');
-        const counts={}; deck.forEach(d=>{counts[d.cat]=(counts[d.cat]||0)+1;});
-        ok(Object.values(counts).every(v=>v===4),'Each category contributes 4 facts');
-        ok(typeof buildReportText==='function','buildReportText defined');
-        ok(typeof downloadReport==='function','downloadReport defined');
-      }catch(e){ out.push('❌ Tests crashed: '+e.message); }
-      const box=$('#testResults'); if(box) box.textContent=out.join('\n');
-    })();
   </script>
 </body>
 </html>
