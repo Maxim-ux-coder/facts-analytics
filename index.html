@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title> Հետաքրքիր Փաստեր — 20 հարցով գնահատում</title>
+  <style>
+    :root{
+      --brand:#6c63ff; --brand-2:#584de0; --bg1:#eef5ff; --bg2:#fff7fb; --text:#222; --muted:#666;
+      --ok:#2e7d32; --meh:#f57c00; --bad:#e53935; --card:#fff; --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font:500 16px/1.6 "Segoe UI", Roboto, system-ui, -apple-system, Arial; color:var(--text);
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));}
+    header{background:var(--brand);color:#fff;padding:18px;text-align:center;font-size:20px}
+    .container{max-width:900px;margin:0 auto;padding:18px}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 8px 18px rgba(0,0,0,.08);padding:18px;margin-bottom:18px}
+    h2,h3{margin:0 0 10px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:10px 16px;background:var(--brand);color:#fff;cursor:pointer}
+    .btn:hover{background:var(--brand-2)}
+    .btn.ghost{background:#eef1ff;color:#333}
+    .btn.danger{background:var(--bad)}
+    input,textarea{padding:10px 12px;border-radius:10px;border:1px solid #d1d5db;width:100%}
+    .muted{color:var(--muted)}
+    .hidden{display:none}
+    .rate button{margin:6px 6px 0 0;padding:10px 14px;border-radius:10px;border:0;color:#fff;cursor:pointer}
+    .good{background:var(--ok)} .meh{background:var(--meh)} .bad{background:var(--bad)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f0f3ff;border:1px solid #dfe3ff;color:#333;margin-right:6px}
+    .kpi{display:flex;gap:12px;flex-wrap:wrap}
+    .kpi .tile{background:#f8f9ff;border:1px solid #e7ebff;border-radius:12px;padding:10px 12px}
+    details.tests summary{cursor:pointer}
+    code.inline{background:#f4f6ff;border:1px solid #e4e8ff;border-radius:8px;padding:1px 6px}
+  </style>
+</head>
+<body>
+  <header> Հետաքրքիր Փաստեր — 20 փաստ</header>
+  <div class="container">
+    <!-- Onboarding -->
+    <section id="welcome" class="card">
+      <h2>Բարի գալուստ 👋</h2>
+      <p class="muted">Գրիր քո անունը՝ սկսելու համար։ Անունը պահվում է միայն այս բրաուզերի <code class="inline">localStorage</code>-ում։</p>
+      <div class="row">
+        <input id="nameInput" placeholder="օր. Արմեն" />
+        <button id="btnStart" class="btn" onclick="startApp()">Սկսել 🚀</button>
+        <button id="btnReset" class="btn ghost" onclick="resetAll()">Մաքրել տվյալները</button>
+      </div>
+      
+    </section>
+
+    <!-- Quiz / Rating -->
+    <section id="quiz" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="muted">Ձեր անունը</div>
+            <div id="userName" class="pill">—</div>
+          </div>
+          <div class="kpi">
+            <div class="tile">Ցուցադրված՝ <b id="shown">0</b></div>
+            <div class="tile">Կատեգորիա՝ <span id="catName">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="muted" id="factCat">—</div>
+        <h2 id="factText">—</h2>
+        <div class="rate">
+          <button class="good" onclick="rate(5)">😍 Շատ սիրեցի</button>
+          <button class="good" onclick="rate(4)">👍 Հետաքրքիր էր</button>
+          <button class="meh"  onclick="rate(3)">😐 Նորմալ</button>
+          <button class="bad"  onclick="rate(2)">👎 Չէ</button>
+          <button class="bad"  onclick="rate(1)">🚫 Ինձ համար չէ</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn ghost" onclick="prevFact()">← Նախորդը</button>
+          <button class="btn" onclick="nextFact()">Հաջորդը →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Finish / Suggestions -->
+    <section id="finish" class="hidden">
+      <div class="card">
+        <h2>Շնորհակալություն ինձ օգնելու համար 🙌</h2>
+        <p class="muted">Եթե ցանկանում եք ինչ‑որ բան ավելացնել, լրացրեք առաջարկների դաշտերը։ Կարող եք ավելացնել անվերջ դաշտեր «Նոր առաջարկ» կոճակով։ Ի վերջո սեղմեք «Պատրաստ է»՝ ստանալու TXT ֆայլը ներբեռնման համար։</p>
+      </div>
+      <div id="suggestions" class="card">
+        <h3>Առաջարկներ</h3>
+        <div id="suggestList"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn ghost" onclick="addSuggestion()">➕ Նոր առաջարկ</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Ավարտել</h3>
+        <div class="row">
+          <button class="btn" onclick="downloadReport()">⬇️ Պատրաստ է — ներբեռնել TXT</button>
+          <button class="btn ghost" onclick="reviewAnswers()">📄 Դիտել գնահատականները</button>
+        </div>
+        <div id="reviewBox" class="muted" style="margin-top:10px;white-space:pre-wrap"></div>
+      </div>
+    </section>
+
+  <script>
+    // ============== Helpers ==============
+    const $ = (s)=>document.querySelector(s);
+    const saveLS=(k,v)=>localStorage.setItem(k, JSON.stringify(v));
+    const readLS=(k,d=null)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+
+    // Deterministic-ish shuffle seeded by name (simple LCG)
+    function seededShuffle(arr, seedStr){
+      let seed=0; for(let i=0;i<seedStr.length;i++) seed=(seed*31 + seedStr.charCodeAt(i))>>>0;
+      let a=1664525, c=1013904223, m=2**32, x=seed||123456789;
+      const out=arr.slice();
+      for(let i=out.length-1;i>0;i--){ x=(a*x+c)%m; const j = Math.floor((x/m)*(i+1)); [out[i],out[j]]=[out[j],out[i]]; }
+      return out;
+    }
+
+    // ============== Data (5 categories, >=4 facts each) ==============
+    const CATEGORIES=[
+      {id:'science', name:'Գիտություն'},
+      {id:'history', name:'Պատմություն'},
+      {id:'animals', name:'Կենդանիներ'},
+      {id:'space', name:'Տիեզերք'},
+      {id:'tech', name:'Տեխնոլոգիաներ'}
+    ];
+
+      const FACTS = {
+    science: [
+      'Մարդու ԴՆԹ-ի ամբողջ երկարությունը, եթե ձգվեր, կգերազանցեր Արեգակից մինչև Պլուտոն հեռավորությունը։',
+      'Սրտի բաբախյունը կարող է փոխել մարդու ուղեղի ալիքները և ազդեցություն ունենալ հիշողության վրա։',
+      'Մակերեսային լարվողության պատճառով փոքր միջատները կարող են քայլել ջրի վրա։',
+      'Մարդու ստամոքսը յուրաքանչյուր մի քանի օր փոխում է լորձաթաղանթը, որ չհալչի սեփական թթվից։',
+      'Կենսաբանական տեսանկյունից մարդկանց ԴՆԹ-ն 60%-ով նման է բանանի ԴՆԹ-ին։'
+    ],
+    history: [
+      'Հին Եգիպտոսում առաջին հայտնի պայմանագրերը կնքվել են դեռևս մ.թ.ա. 3000-ին։',
+      'Ալեքսանդր Մակեդոնացին հիմնադրել է ավելի քան 20 քաղաք իր անունով՝ Ալեքսանդապոլ։',
+      'Հին Հռոմում մետաղադրամներով աշխատավարձ ստացող զինվորներին ասում էին «սալարիում» (աղի գումար)։',
+      'Միջնադարում կատուներին երբեմն դատում էին որպես «հանցագործ»։',
+      'Արտաշատը հայտնի էր որպես «Հայկական Կարթագեն»՝ մեծ առևտրական կենտրոն լինելով։'
+    ],
+    animals: [
+      'Աքլորները կարող են լսել մինչև 85 կՀց բարձր հաճախականության ձայներ, որը մարդիկ չեն ընկալում։',
+      'Գնդակաձև ձկնիկները ունեն թույն, որն ավելի մահացու է, քան ցիանիդը։',
+      'Փիղը միակ կենդանին է, որը չի կարող ցատկել։',
+      'Պինգվինների զույգերը հաճախ գտնում են իրար հատուկ «սիրո կանչով»։',
+      'Կարմիր պանդան իրականում ավելի մոտ է էնդեմիկ կենդանիներին, քան մեծ պանդաներին։'
+    ],
+    space: [
+      'Արեգակն յուրաքանչյուր վայրկյանում փոխարկում է մոտ 600 միլիոն տոննա հելիումի ջրածին։',
+      'Սատուրնի օղակները բաղկացած են հիմնականում սառույցից և փոշուց։',
+      'Միջազգային տիեզերակայանի արագությունը մոտ 28 000 կմ/ժ է։',
+      'Յուպիտերի Մեծ Կարմիր Կետը փոթորիկ է, որը գոյություն ունի առնվազն 350 տարի։',
+      'Տիեզերքում լաց լինելու դեպքում արցունքները չեն հոսում, այլ մնում են աչքերի վրա որպես գնդիկներ։'
+    ],
+    tech: [
+      'Առաջին համակարգչային մկնիկը պատրաստված էր փայտից (1964թ.)։',
+      'Google անունը գալիս է «googol» բառից՝ կամված 1-ից և 100 զրոյից։',
+      'Առաջին կոշտ սկավառակը կշռում էր ավելի քան մեկ տոննա և պահում էր ընդամենը 5 ՄԲ տվյալ։',
+      'Bluetooth անունը վերցված է սկանդինավյան թագավորից՝ Հարալդ Կապտանատախտակից։',
+      'Առաջին iPhone-ը չէր աջակցում «copy-paste» ֆունկցիան։'
+    ]
+  };
+
+
+    // ============== State ==============
+    let state = {
+      name: readLS('ff_name') || '',
+      deck: [], // 20 items: {id, cat, text}
+      idx: 0,
+      answers: [], // {id, cat, text, rating}
+      suggestions: ['']
+    };
+
+    // ============== Deck generation (20 = 5 cats × 4) ==============
+    function buildDeck(){
+      const cats=CATEGORIES.map(c=>c.id); // 5
+      const deck=[];
+      for(const cat of cats){
+        const pool = FACTS[cat].slice();
+        const shuffled = seededShuffle(pool, state.name||'guest');
+        const take4 = shuffled.slice(0,4);
+        for(let i=0;i<take4.length;i++){
+          deck.push({ id:`${cat}_${i}`, cat, text: take4[i] });
+        }
+      }
+      // Mix final deck to interleave categories nicely
+      state.deck = seededShuffle(deck, state.name||'guest');
+      state.idx = 0; state.answers = [];
+    }
+
+    // ============== UI flow ==============
+    function startApp(){
+      const nm = ($('#nameInput').value||'').trim(); if(!nm){ alert('Գրի՛ր անունը ✍️'); return; }
+      state.name = nm; saveLS('ff_name', nm);
+      buildDeck();
+      $('#userName').textContent = nm;
+      $('#shown').textContent = '0';
+      $('#welcome').classList.add('hidden');
+      $('#quiz').classList.remove('hidden');
+      showCurrent();
+    }
+    window.startApp=startApp;
+
+    function showCurrent(){
+      const item = state.deck[state.idx];
+      if(!item){ return finishFlow(); }
+      const catName = CATEGORIES.find(c=>c.id===item.cat).name;
+      $('#catName').textContent = catName;
+      $('#factCat').textContent = catName;
+      $('#factText').textContent = item.text;
+      $('#shown').textContent = String(state.idx+1>20?20:state.idx+1)+ '/20';
+    }
+
+    function nextFact(){
+      if(state.idx < state.deck.length-1){ state.idx++; showCurrent(); }
+      else { finishFlow(); }
+    }
+    window.nextFact=nextFact;
+
+    function prevFact(){
+      if(state.idx>0){ state.idx--; showCurrent(); }
+    }
+    window.prevFact=prevFact;
+
+    function rate(q){
+      const item = state.deck[state.idx];
+      // Save/replace rating for this item index deterministically
+      state.answers[state.idx] = { ...item, rating:q };
+      // Auto-continue to next
+      nextFact();
+    }
+    window.rate=rate;
+
+    function finishFlow(){
+      $('#quiz').classList.add('hidden');
+      $('#finish').classList.remove('hidden');
+      // Bootstrap one suggestion field if empty
+      if(!state.suggestions.length) state.suggestions=[''];
+      renderSuggestions();
+    }
+
+    // ============== Suggestions ==============
+    function renderSuggestions(){
+      const box = $('#suggestList'); box.innerHTML='';
+      state.suggestions.forEach((val, i)=>{
+        const wrap=document.createElement('div'); wrap.className='row'; wrap.style.marginBottom='8px';
+        const label=document.createElement('div'); label.textContent = `Առաջարկ ${i+1}`; label.style.minWidth='110px'; label.className='muted';
+        const input=document.createElement('input'); input.value=val; input.placeholder='Ձեր առաջարկը…'; input.oninput=()=>{ state.suggestions[i]=input.value; };
+        const rm=document.createElement('button'); rm.className='btn danger'; rm.textContent='✕'; rm.onclick=()=>{ state.suggestions.splice(i,1); renderSuggestions(); };
+        wrap.appendChild(label); wrap.appendChild(input); wrap.appendChild(rm);
+        box.appendChild(wrap);
+      });
+    }
+    function addSuggestion(){ state.suggestions.push(''); renderSuggestions(); }
+    window.addSuggestion=addSuggestion;
+
+    // ============== Report ==============
+    function buildReportText(){
+      const lines=[]; const now=new Date().toLocaleString();
+      lines.push(`Անուն: ${state.name}`);
+      lines.push(`Ամսաթիվ/ժամ: ${now}`);
+      lines.push('');
+      // Category stats
+      const perCat={};
+      for(const c of CATEGORIES){ perCat[c.id]={name:c.name, sum:0, n:0}; }
+      state.answers.forEach(a=>{ if(!a) return; perCat[a.cat].sum+=a.rating||0; perCat[a.cat].n++; });
+      lines.push('Կատեգորիաների ամփոփում:');
+      let bestCat=null, bestAvg=-1;
+      for(const cid of Object.keys(perCat)){
+        const {name,sum,n}=perCat[cid]; const avg = n? (sum/n).toFixed(2) : '—';
+        lines.push(`- ${name}: միջին ${avg} (${n} փաստ)`);
+        if(n){ const v = sum/n; if(v>bestAvg){ bestAvg=v; bestCat=name; } }
+      }
+      lines.push(`Լավագույն կատեգորիա: ${bestCat||'—'}`);
+      lines.push('');
+      lines.push('Մանրամասնություններ (20 փաստ) — կարգով:');
+      state.deck.forEach((it, i)=>{
+        const a = state.answers[i];
+        const catName = CATEGORIES.find(c=>c.id===it.cat).name;
+        const r = a? a.rating : '—';
+        lines.push(`${String(i+1).padStart(2,'0')}. [${catName}] ${it.text} => Գնահատական: ${r}`);
+      });
+      lines.push('');
+      lines.push('Առաջարկներ:');
+      const nonEmpty = (state.suggestions||[]).map(s=>s.trim()).filter(Boolean);
+      if(nonEmpty.length){ nonEmpty.forEach((s,i)=> lines.push(`- ${i+1}) ${s}`)); }
+      else { lines.push('—'); }
+      return lines.join('\n');
+    }
+
+    function downloadReport(){
+      const txt = buildReportText();
+      const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `facts_report_${(state.name||'user').replace(/\s+/g,'_')}.txt`;
+      a.click();
+    }
+    window.downloadReport=downloadReport;
+
+    function reviewAnswers(){
+      $('#reviewBox').textContent = buildReportText();
+    }
+    window.reviewAnswers=reviewAnswers;
+
+    // Reset
+    function resetAll(){ localStorage.clear(); location.reload(); }
+    window.resetAll=resetAll;
+
+    // ============== Boot ==============
+    (function init(){
+      if(state.name){ $('#nameInput').value=state.name; }
+      // Auto-continue if user had name and no deck yet
+      // (safer to start fresh anyway)
+    })();
+
+    // ============== Tests ==============
+    (function runTests(){
+      const out=[]; const ok=(c,m)=>{ out.push(`${c?'✅':'❌'} ${m}`); if(!c) console.error(m); };
+      try{
+        ok(typeof startApp==='function','startApp is defined (fix for ReferenceError)');
+        // Build a temporary deck for tests
+        const tmpName='Tester';
+        let tmpState={ name: tmpName, deck:[], idx:0, answers:[], suggestions:[''] };
+        // simulate buildDeck using same logic
+        (function buildDeckTest(){
+          const cats=CATEGORIES.map(c=>c.id); const deck=[];
+          for(const cat of cats){ const pool=FACTS[cat].slice(); const shuffled=seededShuffle(pool,tmpName); const take4=shuffled.slice(0,4); for(let i=0;i<take4.length;i++){ deck.push({id:`${cat}_${i}`,cat, text:take4[i]}); } }
+          tmpState.deck = seededShuffle(deck,tmpName);
+        })();
+        ok(tmpState.deck.length===20,'Deck contains exactly 20 items');
+        // Count per category == 4
+        const counts={}; tmpState.deck.forEach(d=>{counts[d.cat]=(counts[d.cat]||0)+1;});
+        ok(Object.values(counts).every(v=>v===4),'Each of 5 categories contributes 4 facts');
+        // Download report smoke test
+        ok(typeof downloadReport==='function','downloadReport is defined');
+      }catch(e){ out.push('❌ Tests crashed: '+e.message); }
+      const box=$('#testResults'); if(box) box.textContent=out.join('\n');
+    })();
+  </script>
+</body>
+</html>
